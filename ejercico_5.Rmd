@@ -1,0 +1,139 @@
+---
+title: "Ejercicio 5"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+
+knitr::opts_chunk$set(
+echo = TRUE,
+warning = FALSE,
+message = FALSE
+)
+
+paquetes <- c("knitr", "GA")
+
+for (paquete in paquetes) {
+if (!requireNamespace(paquete, quietly = TRUE)) {
+install.packages(paquete)
+}
+}
+
+library(knitr)
+library(GA)
+```
+
+## 5.1 Utilización del Análisis de Componentes Principales en Machine Learning
+
+El Análisis de Componentes Principales es una técnica de reducción de dimensionalidad utilizada en Machine Learning para transformar un conjunto de variables originales en un número menor de componentes principales, intentando conservar la mayor cantidad posible de información presente en los datos.
+
+Cada componente principal es una combinación lineal de las variables originales. Los componentes se ordenan según la cantidad de variabilidad que explican: el primer componente captura la mayor variabilidad posible, el segundo captura la mayor variabilidad restante, y así sucesivamente.
+
+En Machine Learning, PCA puede utilizarse principalmente para:
+
+- Reducir la dimensionalidad: disminuir la cantidad de variables utilizadas por un modelo.
+- Eliminar redundancia: cuando existen variables altamente correlacionadas, PCA permite representarlas mediante un conjunto reducido de componentes.
+- Facilitar la visualización: un conjunto de datos con muchas variables puede proyectarse sobre dos o tres componentes para representarlo gráficamente.
+- Reducir el costo computacional: trabajar con menos dimensiones puede disminuir el tiempo y los recursos necesarios para entrenar determinados modelos.
+- Preprocesar los datos: los componentes obtenidos pueden utilizarse posteriormente como entrada para algoritmos de clasificación, regresión o clustering.
+
+Es importante destacar que PCA no selecciona directamente las variables originales, sino que construye nuevas variables a partir de combinaciones de ellas. Por este motivo, aunque permite reducir la dimensionalidad, la interpretación de los componentes puede resultar menos directa que la de las variables originales.
+
+## 5.2 Implicancia de utilizar Kernel en Componentes Principales
+
+Una limitación del PCA tradicional es que busca relaciones lineales entre las variables. Por lo tanto, cuando los datos presentan una estructura no lineal, los componentes principales pueden no representar adecuadamente la información contenida en ellos.
+
+Para abordar esta situación se propone el Kernel PCA (KPCA), introducido por Schölkopf, Smola y Müller (1998).^[Schölkopf, B., Smola, A. J., & Müller, K.-R. (1998). “Nonlinear Component Analysis as a Kernel Eigenvalue Problem”. Neural Computation.] La idea principal consiste en utilizar una función kernel para transformar implícitamente los datos hacia un espacio de características de mayor dimensión y realizar allí el análisis de componentes principales. De esta manera, es posible identificar estructuras no lineales que el PCA tradicional podría no detectar.
+
+La principal implicancia de utilizar un kernel en PCA es que se pasa de buscar únicamente patrones lineales a buscar estructuras no lineales en los datos. Esto puede ser útil cuando las variables presentan relaciones complejas que no pueden representarse adecuadamente mediante una combinación lineal.
+
+Por ejemplo, si los datos tienen una estructura curva o forman grupos que no pueden separarse mediante una línea recta, PCA tradicional puede tener dificultades para encontrar una representación adecuada. Kernel PCA puede transformar implícitamente esa estructura a otro espacio donde resulte más sencillo identificar los patrones.
+Por lo tanto, Kernel PCA no reemplaza conceptualmente a PCA, sino que extiende su capacidad para trabajar con estructuras no lineales.
+
+## 5.3 ¿Qué significa el “Truco del Kernel”?
+
+En Machine Learning, muchos conjuntos de datos no son linealmente separables en su espacio original,es decir, no se puede pasar una línea recta o un plano para separar las clases o ajustar una curva.
+
+El “Truco del Kernel” (Kernel Trick) es una técnica que permite trabajar con relaciones no lineales entre los datos sin tener que realizar explícitamente la transformación de los datos hacia un espacio de mayor dimensión.
+
+Se puede interpretar el Kernel Trick como una forma de trabajar como si los datos hubieran sido transformados a un espacio más complejo, pero sin realizar explícitamente esa transformación. Esto permite aprovechar las ventajas de trabajar en dimensiones superiores sin tener que calcular directamente esas nuevas dimensiones.
+
+La idea es que algunos algoritmos, como Kernel PCA, necesitan calcular relaciones entre los datos en un espacio de características. En lugar de transformar cada dato explícitamente, se utiliza una función kernel que calcula directamente la similitud entre dos observaciones en ese espacio.
+
+A continuación, se detallan los kernels más utilizados:
+
+Kernel lineal: mide la similitud entre dos observaciones mediante su producto interno. Se utiliza cuando los datos presentan relaciones aproximadamente lineales.
+
+$$
+K(x,z) = x^{T}z
+$$
+Kernel polinómico: permite representar relaciones no lineales mediante un polinomio de determinado grado.
+
+$$
+K(x,z) = \left(\gamma x^{T}z + r\right)^d
+$$
+                       
+Kernel RBF o Gaussiano: mide la similitud según la distancia entre las observaciones. Es útil para capturar relaciones no lineales y estructuras complejas.
+
+$$
+K(x,z) = e^{-\gamma \lVert x-z \rVert^2}
+$$
+                        
+Kernel sigmoide: utiliza una función sigmoidal para representar relaciones no lineales entre las observaciones.
+
+$$
+K(x,z) = \tanh\left(\gamma x^{T}z + r\right)
+$$
+Donde x y z representan dos observaciones, $\gamma$ controla la influencia de las observaciones, r es un término de ajuste y d corresponde al grado del polinomio.
+
+## 5.4 Métodos sencillos para seleccionar un kernel
+
+### 5.4.1 Reglas basadas en las Dimensiones del Dataset
+
+Una primera estrategia consiste en analizar las características del conjunto de datos antes de realizar una búsqueda exhaustiva. En particular, puede considerarse la relación entre el número de observaciones  y el número de variables.
+
+- Muchas variables y pocas observaciones: puede comenzarse probando un kernel lineal, especialmente cuando existe una gran cantidad de variables. Este tipo de kernel tiene menor complejidad y puede reducir el riesgo de introducir una transformación innecesariamente compleja.
+- Cantidad moderada de observaciones y variables: puede resultar conveniente comparar un kernel lineal con uno RBF (gaussiano). El RBF permite capturar relaciones no lineales y puede ser útil cuando la estructura de los datos no puede representarse adecuadamente mediante relaciones lineales.
+- Gran cantidad de observaciones: suele ser conveniente comenzar con un kernel lineal, debido al costo computacional de los kernels no lineales. En métodos basados en kernels, trabajar con una matriz de similitud de tamaño puede resultar costoso cuando aumenta considerablemente el número de observaciones.
+
+### 5.4.2 Grid Search con Validación Cruzada 
+
+Es una estrategia que permite seleccionar de manera sistemática la configuración más adecuada de un modelo. Para ello, se define previamente un conjunto de kernels y de valores para sus principales hiperparámetros. El método evalúa todas las combinaciones posibles y utiliza validación cruzada para medir el desempeño de cada una. Finalmente, se comparan los resultados y se selecciona la configuración que obtiene el mejor desempeño según la métrica elegida.
+
+De esta manera, el procedimiento puede resumirse en:
+
+- Definir los kernels que se desean comparar.
+- Definir los hiperparámetros y los valores que se quieren evaluar.
+- Generar todas las combinaciones posibles entre kernels e hiperparámetros.
+- Aplicar validación cruzada a cada combinación.
+- Calcular una métrica de desempeño para cada configuración.
+- Comparar los resultados obtenidos entre las diferentes configuraciones.
+- Seleccionar la configuración con el mejor desempeño de validación.
+
+Esta estrategia permite realizar la selección de manera sistemática y reproducible, evitando elegir el kernel únicamente de forma subjetiva
+
+### 5.4.3 Alineación del Kernel (Kernel Alignment)
+
+La Alineación del Kernel es un método que permite evaluar qué tan adecuado es un kernel para un determinado problema de aprendizaje. La idea consiste en comparar la matriz de kernel K, que representa la similitud entre las observaciones, con una matriz construida a partir de las etiquetas del problema.
+
+Una mayor alineación indica que las similitudes generadas por el kernel son coherentes con la estructura de las clases. Por ejemplo, se espera que observaciones pertenecientes a una misma clase tengan una mayor similitud que observaciones de clases diferentes.
+
+El procedimiento consiste en:
+
+- Seleccionar un kernel y sus parámetros.
+- Construir la matriz de kernel K.
+- Construir la matriz de etiquetas.
+- Calcular la alineación entre ambas matrices.
+- Comparar diferentes kernels o parámetros.
+- Seleccionar aquellos con mayor alineación.
+
+Una ventaja importante es que permite realizar una selección preliminar del kernel sin necesidad de entrenar completamente un modelo para cada alternativa, reduciendo el costo computacional.^[Cristianini, N., Shawe-Taylor, J., Elisseeff, A., & Kandola, J. (2001). On Kernel-Target Alignment]
+
+En conclusión, diferentes estrategias sencillas para orientar la selección de un kernel. El análisis de las dimensiones del dataset permite realizar una primera selección de candidatos, mientras que Grid Search con validación cruzada permite comparar sistemáticamente diferentes kernels e hiperparámetros. Por otra parte, Kernel Alignment proporciona una medida de qué tan bien la estructura de similitud generada por un kernel se relaciona con el objetivo del problema. En la práctica, una estrategia razonable consiste en utilizar el análisis inicial para definir algunos kernels candidatos y posteriormente evaluarlos mediante validación cruzada.
+
+
+
+
+
+
+
