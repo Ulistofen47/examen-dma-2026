@@ -1,0 +1,125 @@
+---
+title: "Ejercicio 6"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+
+knitr::opts_chunk$set(
+echo = TRUE,
+warning = FALSE,
+message = FALSE
+)
+
+paquetes <- c("knitr", "GA")
+
+for (paquete in paquetes) {
+if (!requireNamespace(paquete, quietly = TRUE)) {
+install.packages(paquete)
+}
+}
+
+library(knitr)
+library(GA)
+```
+## 6.1 Análisis de supervivencia
+
+El análisis de supervivencia es un conjunto de técnicas estadísticas utilizadas para estudiar el tiempo que transcurre hasta que ocurre un determinado evento.
+Aunque se lo conoce como “análisis de supervivencia”, no significa que necesariamente tenga que estar relacionado con la vida o la muerte. El evento de interés puede ser cualquier situación que queramos analizar.
+
+Por ejemplo, podemos estudiar:
+
+- El tiempo hasta que un paciente presenta una recaída.
+- Los días hasta que un cliente abandona una empresa.
+- El tiempo hasta que una máquina presenta una falla.
+- Los días hasta que un usuario deja de utilizar una aplicación.
+- El tiempo hasta que una persona desarrolla una determinada enfermedad.
+
+Una de las características más importantes de este tipo de análisis es que no siempre podemos observar exactamente cuándo ocurre el evento.
+
+Por ejemplo, supongamos que queremos estudiar cuánto tiempo tarda un cliente en abandonar una empresa. Seguimos a una persona durante 100 días y, al finalizar el estudio, esa persona todavía continúa siendo cliente.
+
+En este caso, no podemos afirmar que el abandono ocurrió en el día 100. Lo único que sabemos es que, hasta ese momento, el evento no ocurrió y que, si ocurre, será después del día 100. Incluso es posible que nunca ocurra durante el período de seguimiento.
+Esta situación se conoce como censura.
+
+La censura es, por lo tanto, una característica fundamental del análisis de supervivencia, ya que permite trabajar con información incompleta sobre el momento exacto en que ocurre el evento sin tener que descartar esas observaciones.
+
+## 6.2 ¿Por qué utilizar análisis de supervivencia en lugar de una regresión común?
+
+Una regresión tradicional puede utilizarse para estudiar o predecir una variable de interés, pero presenta ciertas limitaciones cuando el objetivo es analizar el tiempo hasta que ocurre un determinado evento.
+
+Una de las principales dificultades aparece cuando existen datos censurados. La censura ocurre cuando, durante el período de seguimiento, no se observa el evento de interés. En estos casos, no conocemos el momento exacto en que ocurrirá el evento; solamente sabemos que, hasta determinado momento, todavía no se ha producido.
+
+Una regresión tradicional presenta dificultades para incorporar correctamente este tipo de información, ya que generalmente requiere conocer el valor de la variable objetivo para cada observación. Si se utilizara el último tiempo observado como si fuera el momento en que ocurrió el evento, se estaría incorporando información incorrecta al análisis.
+
+El análisis de supervivencia, en cambio, está diseñado específicamente para trabajar con tiempos hasta un evento y observaciones censuradas. Para cada observación, permite considerar tanto el tiempo de seguimiento como un indicador que señala si el evento ocurrió o si la observación fue censurada. De esta manera, se aprovecha la información disponible sin asumir que el evento ocurrió en un momento que en realidad se desconoce.
+
+Además, el análisis de supervivencia no se limita a estimar un único valor de tiempo. También permite estudiar cómo cambia la probabilidad de que el evento todavía no haya ocurrido a medida que transcurre el tiempo, analizar el riesgo de ocurrencia del evento y evaluar cómo diferentes variables pueden influir sobre dicho riesgo.
+
+Por estas razones, el análisis de supervivencia resulta especialmente apropiado cuando el objetivo es estudiar el tiempo hasta la ocurrencia de un evento, particularmente cuando existen observaciones censuradas.
+
+Para estimar el tiempo hasta un evento, este enfoque permite:
+
+- Considerar explícitamente los datos censurados.
+- Analizar la probabilidad de que el evento todavía no haya ocurrido en un determinado momento.
+- Estudiar cómo diferentes variables influyen sobre el riesgo de ocurrencia del evento.
+- Obtener curvas y estimaciones de supervivencia a lo largo del tiempo.
+- Aprovechar observaciones que no presentan el evento durante el período de seguimiento.
+
+### 6.3.1 Principales tipos de análisis de supervivencia
+
+Existen diferentes métodos, dependiendo del objetivo del análisis y de las características de los datos:
+
+```{r tabla-algoritmos-geneticos, echo=FALSE,results='asis'}
+tabla <- data.frame(
+  Tipo = c(
+    "No paramétricos",
+    "Semiparamétricos",
+    "Paramétricos",
+    "Modelos de Machine Learning"
+  ),
+  Descripción = c(
+    "No asumen una distribución específica para los tiempos de supervivencia. El método más conocido es Kaplan-Meier, utilizado para estimar la probabilidad de supervivencia a lo largo del tiempo.",
+    
+    "Combinan una estructura estadística con menos supuestos sobre la distribución del tiempo. El principal ejemplo es el modelo de riesgos proporcionales de Cox.",
+    
+    "Suponen que los tiempos de supervivencia siguen una distribución determinada, como Weibull, exponencial o log-normal.",
+    
+    "Incluyen árboles de supervivencia, Random Survival Forests, SVM de supervivencia y redes neuronales, entre otros."
+  )
+)
+
+cat("\\renewcommand{\\arraystretch}{1.5}\n")
+cat("\\setlength{\\tabcolsep}{20pt}\n")
+
+kable(
+  tabla,
+  caption = "Clasificación de los modelos de análisis de supervivencia",
+  booktabs = TRUE
+)
+```
+
+### 6.3.2 Implementaciones en Python y R
+
+En Python, algunas de las principales herramientas disponibles son:
+
+- lifelines, que permite trabajar con Kaplan-Meier, Cox y distintos modelos paramétricos.
+- scikit-survival, orientada a métodos de supervivencia integrados con técnicas de aprendizaje automático.
+- statsmodels, que también incluye algunas herramientas relacionadas con modelos de supervivencia.^[Documentación oficial de lifelines, scikit-survival y statsmodels.]
+
+En R, el análisis de supervivencia cuenta con un amplio conjunto de herramientas, entre las que se destacan:
+
+- survival, uno de los paquetes más utilizados para análisis de supervivencia y modelos de Cox.
+- survminer, que facilita la visualización y presentación de resultados de supervivencia.
+- flexsurv, orientado a modelos paramétricos y flexibles.^[Documentación oficial de los paquetes survival, survminer y flexsurv de R/CRAN]
+
+## Conclusión
+
+El análisis de supervivencia no solamente permite estimar el tiempo hasta la ocurrencia de un evento, sino que proporciona herramientas específicas para manejar la censura, analizar el riesgo a lo largo del tiempo y estudiar el efecto de distintas variables sobre la ocurrencia del evento. Además, cuenta con diferentes métodos, desde técnicas no paramétricas como Kaplan-Meier hasta modelos semiparamétricos, paramétricos y enfoques basados en técnicas de aprendizaje automático, lo que permite adaptar el análisis a las características y objetivos de cada problema. De esta manera, es posible aprovechar tanto las observaciones en las que el evento ocurre como aquellas en las que no se observa durante el período de seguimiento. Por estas características, el análisis de supervivencia constituye un enfoque especialmente apropiado para estudiar situaciones en las que el tiempo hasta la ocurrencia de un evento representa una variable de interés.^[ Kleinbaum, D. G., & Klein, M. (2012). Survival Analysis: A Self-Learning Text (3rd ed.). Springer]
+
+
+
+
+
+
+

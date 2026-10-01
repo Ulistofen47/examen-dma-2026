@@ -1,0 +1,202 @@
+---
+title: "Ejercicio 4"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+
+
+knitr::opts_chunk$set(
+echo = TRUE,
+warning = FALSE,
+message = FALSE
+)
+
+paquetes <- c("knitr", "GA")
+
+for (paquete in paquetes) {
+if (!requireNamespace(paquete, quietly = TRUE)) {
+install.packages(paquete)
+}
+}
+
+library(knitr)
+library(GA)
+```
+
+## 4.1 Algoritmos genéticos
+
+Los Algoritmos Genéticos son métodos de optimización inspirados en el proceso de evolución natural. Su funcionamiento se basa en mantener una población de soluciones candidatas, evaluar su calidad mediante una función de aptitud (fitness) y generar nuevas soluciones a través de operadores genéticos. En cada generación, se seleccionan individuos con mejores características, se combinan mediante el cruce y se introducen modificaciones aleatorias mediante la mutación. Este proceso se repite durante un número determinado de generaciones o hasta alcanzar un criterio de convergencia.^[ Goldberg, D. E. (1989). Genetic Algorithms in Search, Optimization, and Machine Learning. Addison-Wesley.]
+
+El procedimiento general puede representarse mediante el siguiente pseudocódigo:
+
+
+```text
+
+INICIO
+
+    1. Inicializar la población P
+       -Generar individuos de forma aleatoria
+
+    2. Evaluar la población
+       -Calcular la función de aptitud (fitness)
+        para cada individuo
+
+    3. MIENTRAS no se cumpla el criterio de parada HACER
+
+          3.1 Seleccionar individuos
+              -Elegir los padres según su aptitud
+
+          3.2 Aplicar CRUCE
+              -Combinar los individuos seleccionados
+              para generar nuevos descendientes
+
+          3.3 Aplicar MUTACIÓN
+              -Modificar aleatoriamente algunos
+               genes con una determinada probabilidad
+
+          3.4 Evaluar descendientes
+              -Calcular el fitness de los nuevos individuos
+
+          3.5 Formar nueva población
+              -Reemplazar o combinar individuos
+               de la población actual
+
+       FIN MIENTRAS
+
+    4. Seleccionar el mejor individuo
+       -Obtener la solución con mayor aptitud
+
+    5. Retornar la mejor solución encontrada
+
+FIN
+```
+En cada generación, la población evoluciona mediante la aplicación sucesiva de los operadores de selección, cruce y mutación. La selección favorece la reproducción de individuos con mejores valores de aptitud, mientras que el cruce permite combinar características de diferentes soluciones. La mutación introduce variabilidad en la población y contribuye a evitar la pérdida de diversidad. Finalmente, el proceso continúa hasta alcanzar el criterio de parada establecido.
+
+## 4.2 Diferencias entre algoritmos genéticos binarios y reales
+
+Los Algoritmos Genéticos constituyen una técnica de optimización basada en los principios de selección natural y evolución. Una de las principales decisiones en su diseño corresponde a la representación de los individuos, ya que esta determina la forma en que se codifican las soluciones y cómo se aplican los operadores genéticos.
+
+En los algoritmos genéticos binarios, cada individuo se representa mediante una cadena de valores binarios, 0 y 1. Esta representación permite utilizar operadores tradicionales, como el cruce de uno o varios puntos y la mutación de bits. Sin embargo, cuando el problema involucra variables continuas, es necesario realizar una codificación y decodificación entre la representación binaria y los valores reales.
+
+Por otro lado, los algoritmos genéticos reales representan directamente las variables mediante números reales. Esto evita la necesidad de realizar una codificación binaria y permite trabajar de manera más natural con problemas de optimización continua. En este caso, los operadores genéticos deben estar adaptados a este tipo de representación, utilizando, por ejemplo, cruces aritméticos o mutaciones basadas en perturbaciones de los valores.^[Michalewicz, Z. (1996). Genetic Algorithms + Data Structures = Evolution Programs (3rd ed.). Springer]
+
+La siguiente tabla resume las principales características de cada uno:
+
+```{r tabla-algoritmos-geneticos, echo=FALSE,results='asis'}
+
+tabla <- data.frame(
+  Característica = c(
+    "Representación",
+    "Tipo de variables",
+    "Codificación",
+    "Decodificación",
+    "Operador de cruce",
+    "Operador de mutación",
+    "Precisión",
+    "Aplicaciones habituales"
+  ),
+  `Algoritmo_Genético_Binario` = c(
+    "Cadenas de bits compuestas por 0 y 1.",
+    "Variables discretas o variables que pueden ser codificadas mediante bits.",
+    "Las variables deben transformarse a una representación binaria.",
+    "Puede ser necesaria para obtener los valores originales.",
+    "Cruce de uno o varios puntos.",
+    "Cambio de bits, por ejemplo, de 0 a 1 o de 1 a 0.",
+    "Depende de la cantidad de bits utilizada para representar cada variable.",
+    "Problemas discretos, combinatorios y selección de variables."
+  ),
+  `Algoritmo_Genético_Real` = c(
+    "Vectores cuyos elementos son números reales.",
+    "Principalmente variables continuas.",
+    "Las variables se representan directamente mediante valores reales.",
+    "Generalmente no es necesaria.",
+    "Cruce aritmético, BLX-alpha, SBX, entre otros.",
+    "Modificación de los valores mediante perturbaciones.",
+    "Se trabaja directamente con valores numéricos.",
+    "Problemas de optimización continua y matemática."
+  )
+)
+cat("\\renewcommand{\\arraystretch}{1.5}\n")
+names(tabla) <- c(
+  "Característica",
+  "Algoritmo Genético Binario",
+  "Algoritmo Genético Real"
+)
+
+kable(
+  tabla,
+  caption = "Comparación entre algoritmos genéticos binarios y reales",
+  booktabs = TRUE
+)
+```
+
+## 4.3 Casos de aplicación de Algoritmos Genéticos
+
+Los Algoritmos Genéticos se han aplicado en diversos problemas de optimización. A continuación, se presentan tres aplicaciones actuales relacionadas con movilidad eléctrica, infraestructura urbana e inteligencia artificial.
+
+### 4.3.1 Ruteo de vehículos eléctricos (EVRP)
+
+Una aplicación de los Algoritmos Genéticos se encuentra en el problema de ruteo de vehículos eléctricos (Electric Vehicle Routing Problem, EVRP). Este problema busca determinar políticas de ruteo para vehículos eléctricos considerando restricciones adicionales respecto del ruteo tradicional, como la autonomía de las baterías y los tiempos de recarga.
+
+Gil-Gala, Durasević y Jakobović (2024) desarrollaron un enfoque basado en programación genética para evolucionar políticas de ruteo para vehículos eléctricos. El método genera y evalúa diferentes políticas de decisión para construir las rutas, buscando mejorar el desempeño del sistema de transporte frente a las restricciones propias de los vehículos eléctricos.^[Gil-Gala, F. J., Đurasević, M., & Jakobović, D. (2024). Evolving routing policies for electric vehicles by means of genetic programming.] 
+
+### 4.3.2 Ubicación de estaciones de carga para vehículos eléctricos
+
+Otra aplicación corresponde a la localización óptima de estaciones de carga para vehículos eléctricos. El objetivo es determinar una distribución de estaciones que facilite el acceso de los usuarios, considerando la distribución espacial de la población y la distancia hasta los puntos de carga.
+
+Monteagudo Tortola, Castronuovo y Barber Castaño (2024) propusieron una metodología que combina un Algoritmo Genético con Weighted K-Means. Inicialmente, el AG genera posibles ubicaciones para las estaciones y posteriormente el método de agrupamiento permite refinar su distribución teniendo en cuenta la dispersión de los residentes. El método fue aplicado a entornos urbanos de dos ciudades españolas.^[Monteagudo Tortola, R., Castronuovo, E. D., & Barber Castaño, R. I. (2024). Optimal EVs Charge Station Allocation Considering Residents Dispersion Using a Genetic Algorithm and Weighted K-Means.]
+
+### 4.3.3 Selección de características en Machine Learning
+
+Los Algoritmos Genéticos también pueden utilizarse en aprendizaje automático para seleccionar características relevantes de un conjunto de datos. Cuando se trabaja con datos de alta dimensionalidad, seleccionar las variables más importantes puede reducir la cantidad de información utilizada por el modelo y facilitar el procesamiento.
+
+Feng (2024) propone un método de selección de características basado en un Algoritmo Genético optimizado. El algoritmo explora diferentes subconjuntos de características mediante los procesos de selección, cruce y mutación, buscando encontrar un conjunto de variables que permita mejorar el desempeño del modelo de clasificación.^[Feng, G. (2024). Feature selection algorithm based on optimized genetic algorithm and the application in high-dimensional data processing]
+
+## 4.5 Implementación de un Algoritmo Genético mediante software open-source
+
+Los Algoritmos Genéticos pueden implementarse mediante diferentes herramientas de software de código abierto. Entre las alternativas disponibles se encuentran bibliotecas para Python y paquetes específicos para R, que permiten definir la función de aptitud, la representación de los individuos y los principales operadores evolutivos.
+
+### 4.5.1 Python: DEAP
+
+En Python, una alternativa es DEAP (Distributed Evolutionary Algorithms in Python), un framework de código abierto orientado a la implementación y experimentación con algoritmos evolutivos. Su principal característica es que permite construir el algoritmo de manera flexible, definiendo explícitamente la representación de los individuos, la función de aptitud y los operadores de selección, cruce y mutación. Además, proporciona herramientas para registrar estadísticas y conservar las mejores soluciones encontradas.^[Fortin, F.-A., De Rainville, F.-M., Gardner, M.-A., Parizeau, M., & Gagné, C. (2012). DEAP: Evolutionary Algorithms Made Easy. Journal of Machine Learning Research.]
+
+### 4.5.2 R: paquete GA
+
+En R, una alternativa específica es el paquete GA, desarrollado por Luca Scrucca. El paquete proporciona funciones de propósito general para implementar Algoritmos Genéticos y permite trabajar con diferentes tipos de problemas de optimización, incluyendo problemas binarios, continuos y discretos. El usuario puede definir la función objetivo y establecer parámetros relacionados con la población, el cruce, la mutación y el número de generaciones. ^[Scrucca, L. (2013). GA: A Package for Genetic Algorithms in R. Journal of Statistical Software]
+
+## 4.6 Ejemplo de implementación en R de algoritmo genetico
+
+Como ejemplo de aplicación, se puede utilizar un problema sencillo de optimización continua. Supongamos que se desea encontrar los valores de $x_1$ y $x_2$ que minimicen la siguiente función:
+
+$$
+f(x_1,x_2) = x_1^2 + x_2^2
+$$
+La solución óptima es $x_1=0$ y $x_2=0$  . El objetivo del Algoritmo Genético será aproximarse a estos valores mediante un proceso evolutivo.
+
+```{r algoritmo-genetico, echo=TRUE, message=FALSE, warning=FALSE}
+library(GA)
+fitness <- function(x) {
+  x1 <- x[1]
+  x2 <- x[2]
+  -(x[1]^2 + x[2]^2)
+}
+resultado <- ga(
+  type = "real-valued",
+  fitness = fitness,
+  lower = c(-10, -10),
+  upper = c(10, 10),
+  popSize = 50,
+  pcrossover = 0.8,
+  pmutation = 0.1,
+  maxiter = 100
+
+)
+plot(resultado)
+
+```
+El parámetro type = "real-valued" indica que se utiliza una representación real, mientras que lower y upper establecen los límites de búsqueda para cada variable. El parámetro popSize = 50 define el tamaño de la población, pcrossover = 0.8 establece una probabilidad de cruce del 80 %, y pmutation = 0.1 una probabilidad de mutación del 10 %. Finalmente, maxiter = 100 establece un máximo de 100 generaciones.
+
+En este ejemplo, GA genera una población inicial de soluciones reales dentro de los límites establecidos. Cada individuo es evaluado mediante la función fitness y, posteriormente, se aplican los mecanismos de selección, cruce y mutación para generar nuevas poblaciones. El proceso continúa durante un número determinado de generaciones y finalmente se obtiene la mejor solución encontrada.
+
+
